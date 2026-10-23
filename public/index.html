@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIマイボイス読み上げツール</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 20px auto; padding: 0 15px; color: #333; line-height: 1.6; }
+    .card { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
+    textarea { width: 100%; height: 100px; margin: 10px 0; padding: 10px; box-sizing: border-box; font-size: 16px; }
+    button { background: #0070f3; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+    button:disabled { background: #ccc; }
+    audio { width: 100%; margin-top: 15px; }
+    .ad-space { background: #eee; border: 1px dashed #aaa; padding: 15px; text-align: center; margin: 20px 0; min-height: 100px; }
+  </style>
+</head>
+<body>
+
+  <h1>AIマイボイス 音声読み上げウェブ</h1>
+  <p>入力した文章を私のAI音声が読み上げます！自由に遊んでみてください。</p>
+
+  <div class="ad-space">
+    <p>【広告スペース】</p>
+  </div>
+
+  <div class="card">
+    <label for="textInput"><strong>しゃべらせたい文章を入力：</strong></label>
+    <textarea id="textInput" placeholder="ここに日本語でテキストを入力してください..."></textarea>
+    <button id="speakBtn" onclick="generateVoice()">自分の声で読み上げる</button>
+    <audio id="audioPlayer" controls style="display:none;"></audio>
+  </div>
+
+  <div class="ad-space">
+    <p>【広告スペース】</p>
+  </div>
+
+  <h2>このツールについて</h2>
+  <p>このウェブサイトでは、最新のAIディープラーニング技術を用いて作成した「マイボイス（音声クローン）」を利用し、リアルタイムでテキストを音声に変換して再生します。</p>
+
+<script>
+async function generateVoice() {
+  const text = document.getElementById('textInput').value.trim();
+  const btn = document.getElementById('speakBtn');
+  const audio = document.getElementById('audioPlayer');
+
+  if (!text) {
+    alert('テキストを入力してください');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = '声を生成中...';
+
+  try {
+    const response = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+
+    if (!response.ok) throw new Error('生成失敗');
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    audio.src = url;
+    audio.style.display = 'block';
+    audio.play();
+  } catch (err) {
+    alert('エラーが発生しました: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = '自分の声で読み上げる';
+  }
+}
+</script>
+
+</body>
+</html>
